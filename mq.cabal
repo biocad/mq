@@ -26,6 +26,7 @@ library
                      , System.MQ.Protocol 
   other-modules:       System.MQ.Protocol.Internal.Types 
                      , System.MQ.Protocol.Internal.Tag 
+                     , System.MQ.Scheduler.Config
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , aeson-picker
@@ -35,6 +36,7 @@ library
                      , data-msgpack-types
                      , hslogger
                      , semigroups
+                     , split
                      , zeromq4-haskell
   ghc-options:         -Wall -O2
   default-language:    Haskell2010
