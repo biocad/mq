@@ -22,12 +22,40 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     System.MQ.Transport
+                     , System.MQ.Scheduler
   other-modules:       
   build-depends:       base >= 4.7 && < 5
+                     , aeson-picker
+                     , bcd-config
+                     , semigroups
                      , zeromq4-haskell
   ghc-options:         -Wall -O2
   default-language:    Haskell2010
 
+executable scheduler-in
+  hs-source-dirs:      app
+  main-is:             SchedulerIn.hs
+  build-depends:       base
+                     , mq
+  default-language:    Haskell2010
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -O2
+
+executable scheduler-logic
+  hs-source-dirs:      app
+  main-is:             SchedulerLogic.hs
+  build-depends:       base
+                     , mq
+  default-language:    Haskell2010
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -O2
+
+executable scheduler-out
+  hs-source-dirs:      app
+  main-is:             SchedulerOut.hs
+  build-depends:       base
+                     , mq
+  default-language:    Haskell2010
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -O2
+  
 
 source-repository head
   type:     git
