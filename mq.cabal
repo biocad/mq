@@ -23,10 +23,15 @@ library
   hs-source-dirs:      src
   exposed-modules:     System.MQ.Transport
                      , System.MQ.Scheduler
-  other-modules:       
+                     , System.MQ.Protocol 
+  other-modules:       System.MQ.Protocol.Internal.Types 
   build-depends:       base >= 4.7 && < 5
+                     , aeson
                      , aeson-picker
                      , bcd-config
+                     , bytestring
+                     , data-msgpack
+                     , data-msgpack-types
                      , semigroups
                      , zeromq4-haskell
   ghc-options:         -Wall -O2
