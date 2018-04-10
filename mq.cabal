@@ -24,8 +24,8 @@ library
   exposed-modules:     System.MQ.Transport
                      , System.MQ.Scheduler
                      , System.MQ.Protocol 
-  other-modules:       System.MQ.Protocol.Internal.Types
-                     , System.MQ.Scheduler.Config
+  other-modules:       System.MQ.Protocol.Internal.Types 
+                     , System.MQ.Protocol.Internal.Tag 
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , aeson-picker

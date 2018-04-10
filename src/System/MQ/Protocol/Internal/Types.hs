@@ -22,7 +22,7 @@ type Hash       = String
 
 -- | Message tag is a bytestring with five separated with ':' fields: message type; spec; id; pid; creator.
 -- See doc/PROTOCOL.md for more details.
-type MessageTag = ByteString
+type MessageTag = String
 
 -- | Message is the main entity in MQ: various components, controllers and the Scheduler communicate with each other using Messages.
 data Message
