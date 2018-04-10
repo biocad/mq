@@ -1,8 +1,8 @@
 module Main where
 
-import           System.MQ.Scheduler (getConfig, runSchedulerOut)
+import           System.MQ.Scheduler (getSchedulerConfig, runSchedulerOut)
 
 main :: IO ()
 main = do
-    config <- getConfig
+    config <- getSchedulerConfig
     runSchedulerOut config

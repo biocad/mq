@@ -1,53 +1,66 @@
+
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeFamilies    #-}
 
-module System.MQ.Scheduler where
+module System.MQ.Scheduler
+ (
+    SchedulerConfig (..)
+  , getSchedulerConfig
+  , runSchedulerIn
+  , runSchedulerOut
+  , runSchedulerLogic
+  ) where
 
-import           Control.Monad       (forever)
-import           Data.List.NonEmpty  (NonEmpty (..))
-import           System.MQ.Transport
-import           System.ZMQ4         (Pub (..), Pull (..), Push (..), Socket,
-                                      context, receiveMulti, sendMulti)
-import           System.BCD.Config                (getConfigText)
-import Data.Aeson.Picker ((|--))
+import           Control.Monad              (forever)
+import           Data.List.NonEmpty         (NonEmpty (..))
 
-{--
-            World
-              |
- < PULL | SchedulerIn | PUSH >
-              |
-< PULL | SchedulerLogic | PUSH > x n
-              |
- < PULL | SchedulerOut | PUB >
-              |
-            World
---}
+import           System.Log.Logger          (errorM, infoM)
+import           System.MQ.Scheduler.Config (SchedulerConfig (..),
+                                             getSchedulerConfig)
+import           System.MQ.Transport        (Host, Port, anyHost, createAndBind,
+                                             createAndConnect)
+import           System.ZMQ4                (Pub (..), Pull (..), Push (..),
+                                             Socket, context, receiveMulti,
+                                             sendMulti)
+import           Text.Printf                (printf)
 
 
-data SchedulerConfig = SchedulerConfig { hostScheduler :: Host
-                                       , portFromWorld :: Port
-                                       , portToWorld   :: Port
-                                       , portToLogic   :: Port
-                                       , portFromLogic :: Port
-                                       }
+-- | This module contains Scheduler, that is central place in Monique.
+-- Scheduler consists from 3 parts:
+--   * SchedulerIn
+--
+--
+--
+-- >             World
+-- >               |
+-- >  < PULL | SchedulerIn | PUSH >
+-- >               |
+-- > < PULL | SchedulerLogic | PUSH > x N
+-- >               |
+-- >  < PULL | SchedulerOut | PUB >
+-- >               |
+-- >             World
+--
 
-getConfig :: IO SchedulerConfig
-getConfig = do
-    config <- getConfigText
-    let getField field = config |-- ["deploy", "monique", field]
-    pure $ SchedulerConfig (getField "host-scheduler")
-                           (getField "port-from-world")
-                           (getField "port-to-world")
-                           (getField "port-to-logic")
-                           (getField "port-from-logic")
+-- class Scheduler a where
+--   type Connections a
+
+--   connections :: a -> IO (Connections a)
+
+--   rt :: a
+
+  -- run :: Connections a -> IO ()
 
 
 runSchedulerIn :: SchedulerConfig -> IO ()
 runSchedulerIn SchedulerConfig{..} = do
   (fromWorld, toLogic) <- connections
+  infoM "SchedulerIn" "Start working..."
   forever $ do
-     [msgHeader, msgBody] <- receiveMulti fromWorld
-     sendMulti toLogic $ msgHeader :| [msgBody]
+      msg <- receiveMulti fromWorld
+      case msg of
+          [msgHeader, msgBody] ->  sendMulti toLogic $ msgHeader :| [msgBody]
+          _ -> errorM "SchedulerIn"$ printf "Expected message with [header, body]; received list with %d element(s)." (length msg)
   where
     connections :: IO (Socket Pull, Socket Push)
     connections = do
@@ -59,6 +72,7 @@ runSchedulerIn SchedulerConfig{..} = do
 runSchedulerOut :: SchedulerConfig -> IO ()
 runSchedulerOut SchedulerConfig{..} = do
   (fromLogic, toWorld) <- connections
+  infoM "SchedulerOut" "Start working..."
   forever $ do
      [msgHeader, msgBody] <- receiveMulti fromLogic
      sendMulti toWorld $ msgHeader :| [msgBody]
@@ -73,6 +87,7 @@ runSchedulerOut SchedulerConfig{..} = do
 runSchedulerLogic :: SchedulerConfig -> IO ()
 runSchedulerLogic SchedulerConfig{..} = do
   (toLogic, fromLogic) <- connections
+  infoM "SchedulerLogic" "Start working..."
   forever $ do
      [msgHeader, msgBody] <- receiveMulti toLogic
      sendMulti fromLogic $ msgHeader :| [msgBody]

@@ -24,7 +24,8 @@ library
   exposed-modules:     System.MQ.Transport
                      , System.MQ.Scheduler
                      , System.MQ.Protocol 
-  other-modules:       System.MQ.Protocol.Internal.Types 
+  other-modules:       System.MQ.Protocol.Internal.Types
+                     , System.MQ.Scheduler.Config
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , aeson-picker
@@ -32,6 +33,7 @@ library
                      , bytestring
                      , data-msgpack
                      , data-msgpack-types
+                     , hslogger
                      , semigroups
                      , zeromq4-haskell
   ghc-options:         -Wall -O2
