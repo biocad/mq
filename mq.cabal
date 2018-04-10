@@ -26,6 +26,7 @@ library
                      , System.MQ.Protocol 
   other-modules:       System.MQ.Protocol.Internal.Types 
                      , System.MQ.Protocol.Internal.Tag 
+                     , System.MQ.Protocol.Internal.Condition
                      , System.MQ.Scheduler.Config
   build-depends:       base >= 4.7 && < 5
                      , aeson
