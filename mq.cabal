@@ -4,14 +4,18 @@ synopsis:            Package with monique core
 description:
   The package covers:
   .
+    * monique monad module                    
+  .
     * protocol module
   .
+    * transport module
+  .                  
     * scheduler module
 
 homepage:            https://github.com/biocad/mq
 license:             BSD3
 license-file:        LICENSE
-author:              Bogdan Neterebskii, Vladimir Morozov, Sofya Kochkova, Alexander Sadovnikov
+author:              Bogdan Neterebskii, Vladimir Morozov, Alexander Sadovnikov
 maintainer:          neterebskiy@biocad.ru
 copyright:           (c) 2018, BIOCAD
 category:            System
@@ -22,12 +26,19 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     System.MQ.Transport
+                     , System.MQ.Transport.ByteString
                      , System.MQ.Scheduler
                      , System.MQ.Protocol 
+                     , System.MQ.Monad
   other-modules:       System.MQ.Protocol.Internal.Types 
                      , System.MQ.Protocol.Internal.Tag 
                      , System.MQ.Protocol.Internal.Condition
+                     , System.MQ.Protocol.Internal.Converters
+                     
                      , System.MQ.Scheduler.Config
+
+                     , System.MQ.Transport.Internal.Types
+                     , System.MQ.Transport.Internal.Instances
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , aeson-picker
@@ -36,6 +47,7 @@ library
                      , data-msgpack
                      , data-msgpack-types
                      , hslogger
+                     , mtl
                      , semigroups
                      , split
                      , zeromq4-haskell

@@ -3,12 +3,17 @@
     "deps":[]
   },
   "deploy":{
-    "monique":{
-      "host-scheduler":"localhost",
-      "port-from-world":4000,
-      "port-to-world":4001,
-      "port-to-logic":4010,
-      "port-from-logic":4011
+      "monique":{
+          "scheduler-in" : {
+              "host": "localhost",
+              "port-outer": 4000,
+              "port-inner": 4010
+          },
+          "scheduler-out" : {
+              "host": "localhost",
+              "port-outer": 4001,
+              "port-inner": 4011
+          }
     }
   },
   "params":{}

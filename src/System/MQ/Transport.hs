@@ -1,64 +1,46 @@
 module System.MQ.Transport
   (
-    Host
-  , Port
-  , anyHost
-  , localHost
-  , showTCP
-  , twinPort
-  , createAndBind
-  , createAndConnect
+    module System.MQ.Transport.Internal.Types
+  , push
+  , pull
+  , pub
+  , sub
   ) where
 
-import           System.ZMQ4 (Context, Socket, SocketType, bind, connect,
-                              socket)
-import           Text.Printf (printf)
+import           System.MQ.Monad                        (MQMonad)
+import           System.MQ.Protocol                     (Message, MessageTag,
+                                                         pack, unpackM)
+import qualified System.MQ.Transport.ByteString         as TBS (pub, pull, push,
+                                                                sub)
+import           System.MQ.Transport.Internal.Instances ()
+import           System.MQ.Transport.Internal.Types
 
--- | Creates 'Socket' and for given 'Context', 'SocketType', 'Host' and 'Port'.
--- This type of sockets is used when destination address is unknown.
+-- | Pushes @(tag, content)@ to the 'PushChannel'.
 --
-createAndBind :: SocketType a => Context -> a -> Host -> Port -> IO (Socket a)
-createAndBind = createAndAction bind
+push :: (MessageTag, Message) -> PushChannel -> MQMonad ()
+push (tag, content) = TBS.push (pack tag, pack content)
 
--- | Creates 'Socket' and for given 'Context', 'SocketType', 'Host' and 'Port'.
--- This type of sockets is used when destination address is known.
+-- | Pulls @(tag, content)@ from the 'PullChannel'.
 --
-createAndConnect :: SocketType a => Context -> a -> Host -> Port -> IO (Socket a)
-createAndConnect = createAndAction connect
+pull :: PullChannel -> MQMonad (MessageTag, Message)
+pull channel = do
+  (tag, content) <- TBS.pull channel
+  utag           <- unpackM tag
+  ucontent       <- unpackM content
+  pure (utag, ucontent)
 
--- | Inner function which 'connect's or 'bind's.
+-- | Publishes @(tag, content)@ to the 'PubChannel'.
 --
-createAndAction :: SocketType a => (Socket a -> String -> IO ()) -> Context -> a -> Host -> Port -> IO (Socket a)
-createAndAction action context socketType host port  = do
-    socket' <- socket context socketType
-    action socket' (showTCP host port)
-    pure socket'
+pub :: (MessageTag, Message) -> PubChannel -> MQMonad ()
+pub (tag, content) = TBS.pub (pack tag, pack content)
 
--- | Alias for host
+-- | Subscribes and gets @(tag, content)@ from the 'SubChannel'.
 --
-type Host = String
+sub :: SubChannel -> MQMonad (MessageTag, Message)
+sub channel = do
+  (tag, content) <- TBS.sub channel
+  utag           <- unpackM tag
+  ucontent       <- unpackM content
+  pure (utag, ucontent)
 
--- | Alias for port
---
-type Port = Int
 
--- | Sometimes wildcald host is needed for connections
---
-anyHost :: Host
-anyHost = "*"
-
--- | Alias for localhost
---
-localHost :: Host
-localHost = "127.0.0.1"
-
--- | Converts 'Host' and 'Port' into tcp adress
---
-showTCP :: Host -> Port -> String
-showTCP = printf "tcp://%s:%d"
-
--- | For given 'Port' returns ('Port', 'Port' + 1).
--- This is useful when "twin" ports are used for duplex connection.
---
-twinPort :: Port -> (Port, Port)
-twinPort port = (port, port + 1)
