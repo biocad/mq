@@ -10,6 +10,7 @@ module System.MQ.Transport
 import           System.MQ.Monad                        (MQMonad)
 import           System.MQ.Protocol                     (Message, MessageTag,
                                                          pack, unpackM)
+import           System.MQ.Protocol.Internal.Instances  ()
 import qualified System.MQ.Transport.ByteString         as TBS (pub, pull, push,
                                                                 sub)
 import           System.MQ.Transport.Internal.Instances ()

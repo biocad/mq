@@ -31,6 +31,7 @@ library
                      , System.MQ.Protocol 
                      , System.MQ.Monad
   other-modules:       System.MQ.Protocol.Internal.Types 
+                     , System.MQ.Protocol.Internal.Instances 
                      , System.MQ.Protocol.Internal.Tag 
                      , System.MQ.Protocol.Internal.Condition
                      , System.MQ.Protocol.Internal.Converters
@@ -44,6 +45,9 @@ library
                      , aeson-picker
                      , bcd-config
                      , bytestring
+                     , clock
+                     , containers
+                     , cryptohash-sha1
                      , data-msgpack
                      , data-msgpack-types
                      , hslogger

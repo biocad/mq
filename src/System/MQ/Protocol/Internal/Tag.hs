@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module System.MQ.Protocol.Internal.Tag
   (
     messageTag
@@ -8,8 +10,10 @@ module System.MQ.Protocol.Internal.Tag
   , messageCreator
   ) where
 
-import           Data.List                         (intercalate)
-import           Data.List.Split                   (splitOn)
+import           Data.ByteString                   (ByteString, intercalate,
+                                                    split)
+import           Data.Char                         (ord)
+import           Data.Word                         (Word8)
 import           System.MQ.Protocol.Internal.Types (Hash, Message (..),
                                                     MessageTag)
 
@@ -20,7 +24,7 @@ messageTag :: Message -> MessageTag
 messageTag = intercalate ":" . ([msgType, msgSpec, msgId, msgPid, msgCreator] <*>) . pure
 
 -- | Helper function which returns message type.
-msgType :: Message -> String
+msgType :: Message -> ByteString
 msgType ConfigMessage {} = "config"
 msgType ResultMessage {} = "result"
 msgType ErrorMessage {}  = "error"
@@ -33,18 +37,20 @@ msgType DataMessage {}   = "data"
 -- > "foo:bar:baz:ss:er" `matches` (messageType :== "foo" :&& messageId :== "ba")
 -- > False
 
-messageType :: MessageTag -> String
-messageType = head . splitOn ":"
+messageType :: MessageTag -> ByteString
+messageType = head . split delimiter
 
-messageSpec :: MessageTag -> String
-messageSpec = (!! 1) . splitOn ":"
+messageSpec :: MessageTag -> ByteString
+messageSpec = (!! 1) . split delimiter
 
 messageId :: MessageTag -> Hash
-messageId = (!! 2) . splitOn ":"
+messageId = (!! 2) . split delimiter
 
 messagePid :: MessageTag -> Hash
-messagePid = (!! 3) . splitOn ":"
+messagePid = (!! 3) . split delimiter
 
-messageCreator :: MessageTag -> String
-messageCreator = (!! 4) . splitOn ":"
+messageCreator :: MessageTag -> ByteString
+messageCreator = (!! 4) . split delimiter
 
+delimiter :: Word8
+delimiter = fromIntegral . ord $ ':'
