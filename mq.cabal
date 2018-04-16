@@ -37,7 +37,10 @@ library
                      , System.MQ.Protocol.Internal.Condition
                      , System.MQ.Protocol.Internal.Converters
                      
-                     , System.MQ.Scheduler.Config
+                     , System.MQ.Scheduler.Internal.Config
+                     , System.MQ.Scheduler.Internal.In
+                     , System.MQ.Scheduler.Internal.Logic
+                     , System.MQ.Scheduler.Internal.Out
 
                      , System.MQ.Transport.Internal.Types
                      , System.MQ.Transport.Internal.Instances

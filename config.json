@@ -6,15 +6,19 @@
       "monique":{
           "scheduler-in" : {
               "host": "localhost",
-              "port-outer": 4000,
-              "port-inner": 4010
+              "port-outer": 9000,
+              "port-inner": 9010
           },
           "scheduler-out" : {
               "host": "localhost",
-              "port-outer": 4001,
-              "port-inner": 4011
+              "port-outer": 9001,
+              "port-inner": 9011
           }
     }
   },
-  "params":{}
+    "params":{
+        "scheduler-logic": {
+            "messages-file": "messages.json" 
+        }
+    }
 }

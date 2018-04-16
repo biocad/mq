@@ -1,26 +1,14 @@
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TypeFamilies    #-}
-
 module System.MQ.Scheduler
-  ( Scheduler (run)
-  , SchedulerIn (..)
-  , SchedulerOut (..)
-  , SchedulerLogic (..)
-  , SchedulerConfig (..)
-  , getSchedulerConfig
+  ( module System.MQ.Scheduler.Internal.Config
+  , module System.MQ.Scheduler.Internal.In
+  , module System.MQ.Scheduler.Internal.Logic
+  , module System.MQ.Scheduler.Internal.Out
   ) where
 
-import           Control.Monad                  (forever)
-import           Control.Monad.Except           (catchError, liftIO)
-import           System.Log.Logger              (infoM)
-import           System.MQ.Monad                (MQMonad, errorHandler)
-import           System.MQ.Scheduler.Config     (SchedulerConfig (..),
-                                                 getSchedulerConfig)
-import           System.MQ.Transport            (BindTo (..), ConnectTo (..),
-                                                 HostPort (..), PubChannel,
-                                                 PullChannel, PushChannel,
-                                                 anyHost, context)
-import           System.MQ.Transport.ByteString (pub, pull, push)
+import System.MQ.Scheduler.Internal.Config
+import System.MQ.Scheduler.Internal.In
+import System.MQ.Scheduler.Internal.Logic
+import System.MQ.Scheduler.Internal.Out 
 
 --------------------------------------------------------------------------------
 --  This module contains Scheduler, that is central place in Monique.
@@ -43,6 +31,12 @@ import           System.MQ.Transport.ByteString (pub, pull, push)
 --
 -- As you can see, 'SchedulerLogic' can be represented with many copies, while 'SchedulerIn' and 'SchedulerOut' have only one.
 --------------------------------------------------------------------------------
+
+{-
+
+
+
+
 
 -- | General class for all type of 'Scheduler's.
 --
@@ -129,3 +123,4 @@ instance Scheduler SchedulerLogic where
 
   -- | For this moment there is no logic :).
   processing _ (fromIn, toOut) = pull fromIn >>= (`push` toOut)
+-}

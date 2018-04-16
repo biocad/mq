@@ -6,6 +6,8 @@
 
 module System.MQ.Transport.Internal.Instances () where
 
+import           Control.Monad.IO.Class             (liftIO)
+import           System.MQ.Monad                    (MQMonad)
 import           System.MQ.Transport.Internal.Types
 import           System.ZMQ4                        (Pub (..), Pull (..),
                                                      Push (..), Socket,
@@ -24,7 +26,7 @@ instance ConnectTo PubChannel where
 instance ConnectTo SubChannel where
   connectTo HostPort{..} context' = do
     socket' <- createAndConnect context' Sub host port
-    subscribe socket' ""
+    liftIO $ subscribe socket' ""
     pure socket'
 
 instance BindTo PushChannel where
@@ -39,7 +41,7 @@ instance BindTo PubChannel where
 instance BindTo SubChannel where
   bindTo HostPort{..} context' = do
     socket' <- createAndBind context' Sub host port
-    subscribe socket' ""
+    liftIO $ subscribe socket' ""
     pure socket'
 
 --------------------------------------------------
@@ -49,20 +51,20 @@ instance BindTo SubChannel where
 -- | Creates 'Socket' and for given 'Context', 'SocketType', 'Host' and 'Port'.
 -- This type of sockets is used when destination address is unknown.
 --
-createAndBind :: SocketType a => Context -> a -> Host -> Port -> IO (Socket a)
+createAndBind :: SocketType a => Context -> a -> Host -> Port -> MQMonad (Socket a)
 createAndBind = createAndAction bind
 
 -- | Creates 'Socket' and for given 'Context', 'SocketType', 'Host' and 'Port'.
 -- This type of sockets is used when destination address is known.
 --
-createAndConnect :: SocketType a => Context -> a -> Host -> Port -> IO (Socket a)
+createAndConnect :: SocketType a => Context -> a -> Host -> Port -> MQMonad (Socket a)
 createAndConnect = createAndAction connect
 
 -- | Inner function which 'connect's or 'bind's to Socket.
 --
-createAndAction :: SocketType a => (Socket a -> String -> IO ()) -> Context -> a -> Host -> Port -> IO (Socket a)
+createAndAction :: SocketType a => (Socket a -> String -> IO ()) -> Context -> a -> Host -> Port -> MQMonad (Socket a)
 createAndAction action context' socketType host port  = do
-    socket' <- socket context' socketType
-    action socket' (showTCP host port)
+    socket' <- liftIO $ socket context' socketType
+    liftIO $ action socket' (showTCP host port)
     pure socket'
 

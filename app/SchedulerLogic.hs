@@ -1,10 +1,11 @@
 module Main where
 
 import           System.MQ.Monad     (runMQMonad)
-import           System.MQ.Scheduler (Scheduler (..), SchedulerLogic (..),
-                                      getSchedulerConfig)
+import           System.MQ.Scheduler (getLogicConfig, getNetConfig,
+                                      schedulerLogic)
 
 main :: IO ()
 main = do
-    config <- getSchedulerConfig
-    runMQMonad $ run SchedulerLogic config
+    netConfig   <- getNetConfig
+    logicConfig <- getLogicConfig
+    runMQMonad $ schedulerLogic netConfig logicConfig
