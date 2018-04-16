@@ -12,7 +12,7 @@ module System.MQ.Scheduler.Internal.Config
   , getOutConfig
   ) where
 
-import           Data.Aeson.Picker   ((|--), (|-?))
+import           Data.Aeson.Picker   ((|--))
 import           System.BCD.Config   (getConfigText)
 import           System.MQ.Transport (HostPort (..))
 
@@ -44,8 +44,7 @@ data InConfig = InConfig {}
 
 -- | Contains scheduler logic configuration.
 --
-newtype LogicConfig
-  = LogicConfig { messagesFile :: Maybe FilePath }
+newtype LogicConfig = LogicConfig { allowMessages :: [String] }
 
 -- | Contains scheduler out configuration.
 --
@@ -61,8 +60,8 @@ getInConfig = pure InConfig
 getLogicConfig :: IO LogicConfig
 getLogicConfig = do
     config             <- getConfigText
-    let getField field = config |-? ["params", "scheduler-logic", field]
-    pure $ LogicConfig (getField "messages-file")
+    let getField field = config |-- ["params", "scheduler-logic", field]
+    pure $ LogicConfig (getField "allow-messages")
 
 -- | Load scheduler out configuration from config.json.
 --

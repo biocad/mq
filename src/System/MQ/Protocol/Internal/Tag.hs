@@ -8,6 +8,7 @@ module System.MQ.Protocol.Internal.Tag
   , messageId
   , messagePid
   , messageCreator
+  , delimiter
   ) where
 
 import           Data.ByteString                   (ByteString, intercalate,

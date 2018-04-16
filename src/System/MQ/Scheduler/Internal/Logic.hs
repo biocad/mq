@@ -7,8 +7,11 @@ module System.MQ.Scheduler.Internal.Logic
 
 import           Control.Monad                       (forever)
 import           Control.Monad.Except                (catchError, liftIO)
+import           Data.ByteString                     (ByteString)
+import           Data.String                         (IsString (..))
 import           System.Log.Logger                   (infoM)
 import           System.MQ.Monad                     (MQMonad, errorHandler)
+import           System.MQ.Protocol                  (messageSpec)
 import           System.MQ.Scheduler.Internal.Config (LogicConfig (..),
                                                       NetConfig (..))
 import           System.MQ.Transport                 (ConnectTo (..),
@@ -16,11 +19,14 @@ import           System.MQ.Transport                 (ConnectTo (..),
                                                       contextM)
 import           System.MQ.Transport.ByteString      (pull, push)
 
+-- | Scheduler logic receives messages from scheduler in, make some logic and (maybe) sends it to scheduler out.
+-- For this moment following logic is in it:
+--
 schedulerLogic :: NetConfig -> LogicConfig -> MQMonad ()
-schedulerLogic NetConfig{..} _ = do
+schedulerLogic NetConfig{..} LogicConfig{..} = do
     connect <- connections
     liftIO . infoM name $ "start working..."
-    forever . (`catchError` errorHandler name) $ processing connect
+    forever . (`catchError` errorHandler name) $ processing allowList connect
   where
     connections :: MQMonad (PullChannel, PushChannel)
     connections = do
@@ -29,40 +35,18 @@ schedulerLogic NetConfig{..} _ = do
         toOut    <- connectTo schedulerOutInner context'
         return (fromIn, toOut)
 
+    allowList :: [ByteString]
+    allowList = fromString <$> allowMessages
+
     name :: String
     name = "SchedulerLogic"
 
-    processing :: (PullChannel, PushChannel) -> MQMonad ()
-    processing (fromIn, toOut) = pull fromIn >>= (`push` toOut)
-
-{-
-  -- | Name of the commponent for the logging.
-  name :: a -> String
-
-  -- | Running function for the component.
-  run :: a -> SchedulerConfig -> MQMonad ()
-  run a cfg = do
-    let name' = name a
-    connect <- liftIO $ connections a cfg
-    liftIO . infoM name' $ "start working..."
-    forever . (`catchError` errorHandler name') $ processing a connect
-
-  -- | Function that defines component behavior
-  processing :: a -> Connections a -> MQMonad ()
-
-
-
-type Connections SchedulerLogic = (PullChannel, PushChannel)
-
-  name _ = "SchedulerLogic"
-
-  connections _ SchedulerConfig{..} = do
-      context' <- context
-      fromIn   <- connectTo schedulerInInner context'
-      toOut    <- connectTo schedulerOutInner context'
-      return (fromIn, toOut)
-
-  -- | For this moment there is no logic :).
-  processing _ (fromIn, toOut) = pull fromIn >>= (`push` toOut)
-
--}
+    processing :: [ByteString] -> (PullChannel, PushChannel) -> MQMonad ()
+    -- if list of allow messages is empty then send every message further
+    processing [] (fromIn, toOut) = pull fromIn >>= (`push` toOut)
+    -- else only messages with spec from @allowList@ are send further
+    processing allowList' (fromIn, toOut) = do
+        m@(tag, _) <- pull fromIn
+        if messageSpec tag `elem` allowList'
+        then m `push` toOut
+        else pure ()

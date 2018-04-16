@@ -10,16 +10,14 @@ module System.MQ.Transport.ByteString
   ) where
 
 import           Control.Monad.Except
-import qualified Data.ByteString                    as BS (ByteString)
+import qualified Data.ByteString                    as BS (ByteString, split)
 import           Data.List.NonEmpty                 (NonEmpty (..))
 import           System.MQ.Monad                    (MQError (..), MQMonad)
+import           System.MQ.Protocol                 (delimiter)
 import           System.MQ.Transport.Internal.Types (PubChannel, PullChannel,
                                                      PushChannel, SubChannel)
 import           System.ZMQ4                        (receiveMulti, sendMulti)
 import           Text.Printf                        (printf)
-
-
-
 
 -- | Pushes @(tag, content)@ to the 'PushChannel'.
 --
@@ -31,10 +29,8 @@ push (msgTag, msgContent) channel = liftIO . sendMulti channel $ msgTag :| [msgC
 pull :: PullChannel -> MQMonad (BS.ByteString, BS.ByteString)
 pull channel = do
     msg' <- liftIO . receiveMulti $ channel
-    case msg' of
-        [msgTag, msgContent] -> pure (msgTag, msgContent)
-        _                    -> throwError . errorMsg $ length msg'
-
+    processMessage msg'
+    
 -- | Publishes @(tag, content)@ to the 'PubChannel'.
 --
 pub :: (BS.ByteString, BS.ByteString) -> PubChannel -> MQMonad ()
@@ -45,12 +41,16 @@ pub (msgTag, msgContent) channel = liftIO . sendMulti channel $ msgTag :| [msgCo
 sub :: SubChannel -> MQMonad (BS.ByteString, BS.ByteString)
 sub channel = do
     msg' <- liftIO . receiveMulti $ channel
-    case msg' of
-        [msgTag, msgContent] -> pure (msgTag, msgContent)
-        _                    -> throwError . errorMsg $ length msg'
+    processMessage msg'
+    
+processMessage :: [BS.ByteString] -> MQMonad (BS.ByteString, BS.ByteString)
+processMessage [msgTag, msgContent] = if tagIsValid msgTag
+                                      then pure (msgTag, msgContent)
+                                      else throwError . MQTransportError $ "tag is not valid (not consists from 5 fields)."
+processMessage list = throwError . MQTransportError . printf "expected message with [header, body]; received list with %d element(s)." $ length list
 
-errorMsg :: Int -> MQError
-errorMsg = MQTransportError . printf "expected message with [header, body]; received list with %d element(s)."
+tagIsValid :: BS.ByteString -> Bool
+tagIsValid = (== 5) . length . BS.split delimiter
 
 
 
