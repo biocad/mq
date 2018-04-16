@@ -41,7 +41,7 @@ msgpackEncoding = "MessagePack"
 
 -- | Represents Unix epoch time in milliseconds.
 --
-type Timestamp  = ByteString
+type Timestamp  = Int
 
 -- | Represents SHA-1 hash sum.
 --
@@ -102,8 +102,8 @@ createConfigMessage :: MonadIO m => Hash
                                  -> ByteString
                                  -> m Message
 createConfigMessage mPid mCreator mExpires mSpec mConfig mEncoding = do
-  mCreated <- getTimeNano
-  let mId = hash $ intercalate ":" [mCreator, mCreated, mSpec]
+  mCreated <- getTimeMilli
+  let mId = hash $ intercalate ":" [mCreator, timestampToBS mCreated, mSpec]
 
   pure $ ConfigMessage mId mPid mCreator mCreated mExpires mSpec mConfig mEncoding
 
@@ -115,8 +115,8 @@ createResultMessage :: MonadIO m => Hash
                                  -> ByteString
                                  -> m Message
 createResultMessage mPid mCreator mExpires mSpec mResult mEncoding = do
-  mCreated <- getTimeNano
-  let mId = hash $ intercalate ":" [mCreator, mCreated, mSpec]
+  mCreated <- getTimeMilli
+  let mId = hash $ intercalate ":" [mCreator, timestampToBS mCreated, mSpec]
 
   pure $ ResultMessage mId mPid mCreator mCreated mExpires mSpec mResult mEncoding
 
@@ -128,8 +128,8 @@ createErrorMessage :: MonadIO m => Hash
                                 -> ByteString
                                 -> m Message
 createErrorMessage mPid mCreator mExpires mSpec mError mEncoding = do
-  mCreated <- getTimeNano
-  let mId = hash $ intercalate ":" [mCreator, mCreated, mSpec]
+  mCreated <- getTimeMilli
+  let mId = hash $ intercalate ":" [mCreator, timestampToBS mCreated, mSpec]
 
   pure $ ErrorMessage mId mPid mCreator mCreated mExpires mSpec mError mEncoding
 
@@ -141,11 +141,16 @@ createDataMessage :: MonadIO m => Hash
                                -> ByteString
                                -> m Message
 createDataMessage mPid mCreator mExpires mSpec mData mEncoding = do
-  mCreated <- getTimeNano
-  let mId = hash $ intercalate ":" [mCreator, mCreated, mSpec]
+  mCreated <- getTimeMilli
+  let mId = hash $ intercalate ":" [mCreator, timestampToBS mCreated, mSpec]
 
   pure $ DataMessage mId mPid mCreator mCreated mExpires mSpec mData mEncoding
 
-getTimeNano :: MonadIO m => m Timestamp
-getTimeNano = liftIO $ fromString . show . toNanoSecs <$> getTime Realtime
+getTimeMilli :: MonadIO m => m Timestamp
+getTimeMilli = (`div` 10^(6::Int)) <$> getTimeNano
 
+getTimeNano :: MonadIO m => m Timestamp
+getTimeNano = liftIO $ fromIntegral . toNanoSecs <$> getTime Realtime
+
+timestampToBS :: Timestamp -> ByteString
+timestampToBS = fromString . show

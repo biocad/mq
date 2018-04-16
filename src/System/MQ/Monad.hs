@@ -45,8 +45,12 @@ errorHandler name err = do
 data MQError
   = MQProtocolError  { msg :: String }
   | MQTransportError { msg :: String }
+  | MQTechnicalError { msg :: String }
+  | MQComponentError { msg :: String }
   deriving (Eq, Ord)
 
 instance Show MQError where
-  show MQProtocolError{..}  = printf "Monique protocol error: %s" msg
+  show MQProtocolError{..}  = printf "MoniQue protocol error: %s" msg
   show MQTransportError{..} = printf "Monique transport error: %s" msg
+  show MQTechnicalError{..} = printf "MoniQue technical error: %s" msg
+  show MQComponentError{..} = printf "MoniQue component runtime error: %s" msg

@@ -22,7 +22,7 @@ a .= b = (a, toObject b)
 infix .!
 (.!) :: (Monad m, MessagePack b) => Map ByteString Object -> ByteString -> m b
 dict .! key | key `member` dict = fromObject $ dict ! key
-            | otherwise = error $ ".! :: key " ++ show key ++ " is not an element of the dictionary."
+            | otherwise = error $ "System.MQ.Protocol.Internal.Instances: .! :: key " ++ show key ++ " is not an element of the dictionary."
 instance Dictionary Message where
   toDictionary ConfigMessage{..} = fromList [ "id"         .= msgId
                                             , "pid"        .= msgPid
@@ -112,7 +112,7 @@ instance Dictionary Message where
                                    , msgData      = mData
                                    , msgEncoding  = mEncoding
                                    }
-               | otherwise =  error $ "fromDictionary :: unknown constructor type"
+               | otherwise =  error "System.MQ.Protocol.Internal.Instances: fromDictionary :: unknown constructor type"
     result
 
 instance MessagePack Message where
