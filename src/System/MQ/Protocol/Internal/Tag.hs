@@ -16,14 +16,17 @@ import           Data.Char                         (ord)
 import           Data.Word                         (Word8)
 import           System.MQ.Protocol.Internal.Types (Hash, Message (..),
                                                     MessageTag)
+import           Data.String                       (IsString (..))
 
 -- | Build a 'MessageTag' for the given message.
 -- It is consists of five fields – message_type, spec, id, pid, creator – separated by ":".
 -- See doc/PROTOCOL.md#Заголовок-сообщения for more information.
+--
 messageTag :: Message -> MessageTag
-messageTag = intercalate ":" . ([msgType, msgSpec, msgId, msgPid, msgCreator] <*>) . pure
+messageTag = intercalate ":" . ([msgType, fromString . msgSpec, msgId, msgPid, fromString . msgCreator] <*>) . pure
 
 -- | Helper function which returns message type.
+--
 msgType :: Message -> ByteString
 msgType ConfigMessage {} = "config"
 msgType ResultMessage {} = "result"

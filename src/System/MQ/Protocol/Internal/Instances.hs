@@ -3,17 +3,17 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module System.MQ.Protocol.Internal.Instances
-  (
-  ) where
+module System.MQ.Protocol.Internal.Instances () where
 
 import           Control.Monad                     ((>=>))
 import           Data.ByteString                   as BS (ByteString)
 import           Data.Map.Strict                   (Map, fromList, member, (!))
 import           Data.MessagePack.Types.Class      (MessagePack (..))
 import           Data.MessagePack.Types.Object     (Object)
-import           System.MQ.Protocol.Internal.Types (Dictionary (..), Hash,
-                                                    Message (..), Timestamp)
+import           System.MQ.Protocol.Internal.Types (Creator, Dictionary (..),
+                                                    Encoding, Hash,
+                                                    Message (..), Spec,
+                                                    Timestamp)
 
 infix .=
 (.=) :: (Ord a, MessagePack b) => a -> b -> (a, Object)
@@ -23,6 +23,7 @@ infix .!
 (.!) :: (Monad m, MessagePack b) => Map ByteString Object -> ByteString -> m b
 dict .! key | key `member` dict = fromObject $ dict ! key
             | otherwise = error $ "System.MQ.Protocol.Internal.Instances: .! :: key " ++ show key ++ " is not an element of the dictionary."
+
 instance Dictionary Message where
   toDictionary ConfigMessage{..} = fromList [ "id"         .= msgId
                                             , "pid"        .= msgPid
@@ -63,11 +64,11 @@ instance Dictionary Message where
   fromDictionary dict = do
     (mId :: Hash)             <- dict .! "id"
     (mPid :: Hash)            <- dict .! "pid"
-    (mCreator :: ByteString)  <- dict .! "creator"
+    (mCreator :: Creator)     <- dict .! "creator"
     (mCreatedAt :: Timestamp) <- dict .! "created_at"
     (mExpiresAt :: Timestamp) <- dict .! "expires_at"
-    (mSpec :: ByteString)     <- dict .! "spec"
-    (mEncoding :: ByteString) <- dict .! "encoding"
+    (mSpec :: Spec)           <- dict .! "spec"
+    (mEncoding :: Encoding)   <- dict .! "encoding"
     let result | "config" `member` dict = do
                   (mConfig :: ByteString) <- dict .! "config"
                   pure ConfigMessage { msgId        = mId
