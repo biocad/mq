@@ -47,6 +47,7 @@ library
                      , System.MQ.Transport.Internal.Instances
   build-depends:       base >= 4.7 && < 5
                      , aeson
+                     , aeson-casing
                      , aeson-picker
                      , bcd-config
                      , bytestring
