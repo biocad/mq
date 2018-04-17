@@ -29,6 +29,7 @@ library
                      , System.MQ.Transport.ByteString
                      , System.MQ.Scheduler
                      , System.MQ.Protocol 
+                     , System.MQ.Protocol.Technical
                      , System.MQ.Monad
   other-modules:       System.MQ.Protocol.Internal.Types 
                      , System.MQ.Protocol.Internal.Functions
