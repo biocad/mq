@@ -11,6 +11,8 @@ description:
     * transport module
   .                  
     * scheduler module
+  .
+    * encoding module
 
 homepage:            https://github.com/biocad/mq
 license:             BSD3
@@ -50,6 +52,7 @@ library
                      , aeson
                      , aeson-casing
                      , aeson-picker
+                     , base64-bytestring
                      , bcd-config
                      , bytestring
                      , clock

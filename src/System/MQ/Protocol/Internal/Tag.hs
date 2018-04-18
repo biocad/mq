@@ -14,10 +14,10 @@ module System.MQ.Protocol.Internal.Tag
 import           Data.ByteString                   (ByteString, intercalate,
                                                     split)
 import           Data.Char                         (ord)
+import           Data.String                       (IsString (..))
 import           Data.Word                         (Word8)
 import           System.MQ.Protocol.Internal.Types (Hash, Message (..),
                                                     MessageTag)
-import           Data.String                       (IsString (..))
 
 -- | Build a 'MessageTag' for the given message.
 -- It is consists of five fields – message_type, spec, id, pid, creator – separated by ":".

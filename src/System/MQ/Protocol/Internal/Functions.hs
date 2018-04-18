@@ -18,6 +18,7 @@ import           Control.Monad.IO.Class            (MonadIO, liftIO)
 import           Crypto.Hash.SHA1                  (hash)
 import           Data.ByteString                   as BS (ByteString,
                                                           intercalate)
+import           Data.ByteString.Base64            as Base64 (encode)
 import           Data.String                       (IsString (..))
 import           System.Clock                      (Clock (..), getTime,
                                                     toNanoSecs)
@@ -106,11 +107,12 @@ isConfig _               = False
 --------------------------------------------------------------------------------
 
 -- | Creates id 'Hash' and created time from 'Creator' and 'Spec'.
+-- ATTENTION: identificator is in Base64 encoding.
 --
 mkId :: MonadIO m => Creator -> Spec -> m (Hash, Timestamp)
 mkId mCreator mSpec = do
     mCreated <- getTimeMillis
-    let mId = hash $ intercalate ":" [fromString mCreator, timestampToBS mCreated, fromString mSpec]
+    let mId = Base64.encode . hash . intercalate ":" $ [fromString mCreator, timestampToBS mCreated, fromString mSpec]
     pure (mId, mCreated)
 
 getTimeNano :: MonadIO m => m Timestamp
