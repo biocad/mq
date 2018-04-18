@@ -95,6 +95,12 @@ createDataMessage mPid mCreator mExpires mSpec mEncoding mData = do
 getTimeMillis :: MonadIO m => m Timestamp
 getTimeMillis = (`div` 10^(6::Int)) <$> getTimeNano
 
+-- | Checks that message is config type.
+--
+isConfig :: Message -> Bool
+isConfig ConfigMessage{} = True
+isConfig _               = False
+
 --------------------------------------------------------------------------------
 -- INTERNAL
 --------------------------------------------------------------------------------
@@ -112,7 +118,3 @@ getTimeNano = liftIO $ fromIntegral . toNanoSecs <$> getTime Realtime
 
 timestampToBS :: Timestamp -> ByteString
 timestampToBS = fromString . show
-
-isConfig :: Message -> Bool
-isConfig ConfigMessage{} = True
-isConfig _               = False
