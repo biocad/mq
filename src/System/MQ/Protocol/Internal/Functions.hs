@@ -4,6 +4,7 @@ module System.MQ.Protocol.Internal.Functions
   (
     emptyHash
   , notExpires
+  , isConfig
   , jsonEncoding
   , msgpackEncoding
   , createConfigMessage
@@ -111,3 +112,7 @@ getTimeNano = liftIO $ fromIntegral . toNanoSecs <$> getTime Realtime
 
 timestampToBS :: Timestamp -> ByteString
 timestampToBS = fromString . show
+
+isConfig :: Message -> Bool
+isConfig ConfigMessage{} = True
+isConfig _               = False
