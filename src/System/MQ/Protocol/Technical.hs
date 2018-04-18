@@ -15,14 +15,13 @@ import           Data.Aeson                        (FromJSON (..), ToJSON (..),
                                                     withObject, (.:), (.=))
 import           Data.Aeson.Casing                 (aesonPrefix, snakeCase)
 import qualified Data.ByteString.Char8             as BSLC8 (pack, unpack)
-import           Data.MessagePack                  (MessagePack)
 import           GHC.Generics                      (Generic)
 import           System.MQ.Protocol.Internal.Types (Hash, Timestamp)
 
 -- | Configuration for kill task
 --
 data KillConfig = KillConfig { killTaskId :: Hash
-                             } deriving (Eq, Show, Generic, MessagePack)
+                             } deriving (Eq, Show, Generic)
 
 instance ToJSON KillConfig where
   toJSON p = object [ "task_id" .= (BSLC8.unpack $ killTaskId p) ]
@@ -32,7 +31,7 @@ instance FromJSON KillConfig where
 -- | Configuration of monitoring task
 --
 data MonitoringConfig = MonitoringConfig { syncTime :: Timestamp
-                                         } deriving (Eq, Show, Generic, MessagePack)
+                                         } deriving (Eq, Show, Generic)
 
 instance ToJSON MonitoringConfig where
   toJSON = genericToJSON $ aesonPrefix snakeCase
@@ -46,7 +45,7 @@ data MonitoringResult = MonitoringResult { rSyncTime  :: Timestamp
                                          , rHost      :: String
                                          , rIsRunning :: Bool
                                          , rMessage   :: String
-                                         } deriving (Eq, Show, Generic, MessagePack)
+                                         } deriving (Eq, Show, Generic)
 
 instance ToJSON MonitoringResult where
   toJSON = genericToJSON $ aesonPrefix snakeCase

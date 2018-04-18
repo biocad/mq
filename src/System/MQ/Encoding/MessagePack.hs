@@ -1,6 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 
-module System.MQ.Protocol.Internal.Converters
+module System.MQ.Encoding.MessagePack
   (
     pack
   , unpack

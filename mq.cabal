@@ -31,12 +31,13 @@ library
                      , System.MQ.Protocol 
                      , System.MQ.Protocol.Technical
                      , System.MQ.Monad
+                     , System.MQ.Encoding.MessagePack
+                     , System.MQ.Encoding.JSON
   other-modules:       System.MQ.Protocol.Internal.Types 
                      , System.MQ.Protocol.Internal.Functions
                      , System.MQ.Protocol.Internal.Instances 
                      , System.MQ.Protocol.Internal.Tag 
                      , System.MQ.Protocol.Internal.Condition
-                     , System.MQ.Protocol.Internal.Converters
                      
                      , System.MQ.Scheduler.Internal.Config
                      , System.MQ.Scheduler.Internal.In
