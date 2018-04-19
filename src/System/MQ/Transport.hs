@@ -18,8 +18,8 @@ import           System.MQ.Transport.Internal.Types
 
 -- | Pushes @(tag, content)@ to the 'PushChannel'.
 --
-push :: (MessageTag, Message) -> PushChannel -> MQMonad ()
-push (tag, content) = TBS.push (pack tag, pack content)
+push :: PushChannel -> (MessageTag, Message) -> MQMonad ()
+push channel (tag, content) = TBS.push channel (pack tag, pack content)
 
 -- | Pulls @(tag, content)@ from the 'PullChannel'.
 --
@@ -32,8 +32,8 @@ pull channel = do
 
 -- | Publishes @(tag, content)@ to the 'PubChannel'.
 --
-pub :: (MessageTag, Message) -> PubChannel -> MQMonad ()
-pub (tag, content) = TBS.pub (pack tag, pack content)
+pub :: PubChannel -> (MessageTag, Message) -> MQMonad ()
+pub channel (tag, content) = TBS.pub channel (pack tag, pack content)
 
 -- | Subscribes and gets @(tag, content)@ from the 'SubChannel'.
 --

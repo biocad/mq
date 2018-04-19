@@ -36,4 +36,4 @@ schedulerIn NetConfig{..} _ = do
     toLogicHP   = HostPort anyHost (port schedulerInInner)
 
     processing :: (PullChannel, PushChannel) -> MQMonad ()
-    processing (fromWorld, toLogic) = pull fromWorld >>= (`push` toLogic)
+    processing (fromWorld, toLogic) = pull fromWorld >>= push toLogic

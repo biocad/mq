@@ -36,4 +36,4 @@ schedulerOut NetConfig{..} _ = do
     name = "SchedulerOut"
 
     processing :: (PullChannel, PubChannel) -> MQMonad ()
-    processing (fromLogic, toWorld) = pull fromLogic >>= (`pub` toWorld)
+    processing (fromLogic, toWorld) = pull fromLogic >>= pub toWorld

@@ -43,10 +43,10 @@ schedulerLogic NetConfig{..} LogicConfig{..} = do
 
     processing :: [ByteString] -> (PullChannel, PushChannel) -> MQMonad ()
     -- if list of allow messages is empty then send every message further
-    processing [] (fromIn, toOut) = pull fromIn >>= (`push` toOut)
+    processing [] (fromIn, toOut) = pull fromIn >>= push toOut
     -- else only messages with spec from @allowList@ are send further
     processing allowList' (fromIn, toOut) = do
         m@(tag, _) <- pull fromIn
         if messageSpec tag `elem` allowList'
-        then m `push` toOut
+        then push toOut m
         else pure ()

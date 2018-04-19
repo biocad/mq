@@ -21,8 +21,8 @@ import           Text.Printf                        (printf)
 
 -- | Pushes @(tag, content)@ to the 'PushChannel'.
 --
-push :: (BS.ByteString, BS.ByteString) -> PushChannel -> MQMonad ()
-push (msgTag, msgContent) channel = liftIO . sendMulti channel $ msgTag :| [msgContent]
+push :: PushChannel -> (BS.ByteString, BS.ByteString) -> MQMonad ()
+push channel (msgTag, msgContent) = liftIO . sendMulti channel $ msgTag :| [msgContent]
 
 -- | Pulls @(tag, content)@ from the 'PullChannel'.
 --
@@ -33,8 +33,8 @@ pull channel = do
     
 -- | Publishes @(tag, content)@ to the 'PubChannel'.
 --
-pub :: (BS.ByteString, BS.ByteString) -> PubChannel -> MQMonad ()
-pub (msgTag, msgContent) channel = liftIO . sendMulti channel $ msgTag :| [msgContent]
+pub :: PubChannel -> (BS.ByteString, BS.ByteString) -> MQMonad ()
+pub channel (msgTag, msgContent) = liftIO . sendMulti channel $ msgTag :| [msgContent]
 
 -- | Subscribes and gets @(tag, content)@ from the 'SubChannel'.
 --

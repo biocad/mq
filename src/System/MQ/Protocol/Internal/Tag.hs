@@ -12,12 +12,14 @@ module System.MQ.Protocol.Internal.Tag
   ) where
 
 import           Data.ByteString                   (ByteString, intercalate,
-                                                    split, pack)
+                                                    split)
+import           Data.ByteString.Char8             as BS8 (unpack)
 import           Data.Char                         (ord)
 import           Data.String                       (IsString (..))
 import           Data.Word                         (Word8)
 import           System.MQ.Protocol.Internal.Types (Hash, Message (..),
-                                                    MessageTag)
+                                                    MessageTag,
+                                                    MessageType (..))
 
 -- | Build a 'MessageTag' for the given message.
 -- It is consists of five fields – message_type, spec, id, pid, creator – separated by ":".
@@ -36,13 +38,13 @@ messageTag = intercalate ":" . ([fromString . show . msgType, fromString . msgSp
 
 -- | Filtration:
 -- Use System.MQ.Protocol.Internal.Condition
--- > "foo:bar:baz:ss:er" `matches` (messageType :== "foo" :&& messageId :== "baz")
+-- > "config:bar:baz:ss:er" `matches` (messageType :== Config :&& messageId :== "baz")
 -- > True
--- > "foo:bar:baz:ss:er" `matches` (messageType :== "foo" :&& messageId :== "ba")
+-- > "Config:bar:baz:ss:er" `matches` (messageType :== Config :&& messageId :== "ba")
 -- > False
 
-messageType :: MessageTag -> ByteString
-messageType = head . split delimiter
+messageType :: MessageTag -> MessageType
+messageType = read . BS8.unpack . head . split delimiter
 
 messageSpec :: MessageTag -> ByteString
 messageSpec = (!! 1) . split delimiter
