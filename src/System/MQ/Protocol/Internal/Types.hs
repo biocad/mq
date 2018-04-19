@@ -10,6 +10,7 @@ module System.MQ.Protocol.Internal.Types
   , Spec
   , MessageTag
   , Message (..)
+  , MessageType (..)
   , Dictionary (..)
   ) where
 
@@ -92,4 +93,6 @@ data Message
                   }
   deriving (Eq, Show, Read, Generic)
 
-
+-- | 'MessageType' describes valid message types in Monique.
+--
+data MessageType = Config | Result | Error | Data

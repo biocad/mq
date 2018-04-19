@@ -29,6 +29,6 @@ unpack = MP.unpack . BSL.fromStrict
 -- If 'unpackM' failes then 'MQError' will be thrown.
 --
 unpackM :: MP.MessagePack a => BS.ByteString -> MQMonad a
-unpackM bs@(unpack -> m)  = maybe (throwError err) pure m
+unpackM bs@(unpack -> m) = maybe (throwError err) pure m
   where
     err = MQProtocolError . printf "could not unpack MessagePack: %s" . show $ bs

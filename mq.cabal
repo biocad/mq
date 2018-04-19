@@ -32,6 +32,7 @@ library
                      , System.MQ.Scheduler
                      , System.MQ.Protocol 
                      , System.MQ.Protocol.Technical
+                     , System.MQ.Protocol.Class
                      , System.MQ.Monad
                      , System.MQ.Encoding.MessagePack
                      , System.MQ.Encoding.JSON

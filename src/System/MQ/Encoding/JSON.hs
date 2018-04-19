@@ -29,6 +29,6 @@ unpack = decode . BSL.fromStrict
 -- If 'unpackM' failes then 'MQError' will be thrown.
 --
 unpackM :: FromJSON a => BS.ByteString -> MQMonad a
-unpackM bs@(unpack -> m)  = maybe (throwError err) pure m
+unpackM bs@(unpack -> m) = maybe (throwError err) pure m
   where
     err = MQProtocolError . printf "could not unpack JSON: %s" . show $ bs
