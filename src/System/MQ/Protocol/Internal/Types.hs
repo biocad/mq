@@ -91,6 +91,7 @@ data Message
                   , msgEncoding  :: Encoding
                   , msgData      :: ByteString
                   }
+
   deriving (Eq, Show, Read, Generic)
 
 -- | 'MessageType' describes valid message types in Monique.
