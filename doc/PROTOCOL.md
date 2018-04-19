@@ -43,7 +43,8 @@ content:
   expires_at :: Timestamp,
   spec       :: ByteString,
   encoding   :: ByteString,
-  ...
+  type       :: String,
+  data       :: ByteString
 }
 ```
 

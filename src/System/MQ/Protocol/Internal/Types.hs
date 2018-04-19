@@ -54,46 +54,31 @@ type Spec       = String
 
 -- | 'Message' is the main entity in MQ: various components, controllers and the Scheduler communicate with each other using 'Message's.
 --
-data Message
-  = ConfigMessage { msgId        :: Hash        -- ^ bin format family
-                  , msgPid       :: Hash        -- ^ bin format family
-                  , msgCreator   :: Creator     -- ^ str format family
-                  , msgCreatedAt :: Timestamp   -- ^ int format family
-                  , msgExpiresAt :: Timestamp   -- ^ int format family
-                  , msgSpec      :: Spec        -- ^ str format family
-                  , msgEncoding  :: Encoding    -- ^ str format family
-                  , msgConfig    :: ByteString  -- ^ bin format family
-                  }
-  | ResultMessage { msgId        :: Hash
-                  , msgPid       :: Hash
-                  , msgCreator   :: Creator
-                  , msgCreatedAt :: Timestamp
-                  , msgExpiresAt :: Timestamp
-                  , msgSpec      :: Spec
-                  , msgEncoding  :: Encoding
-                  , msgResult    :: ByteString
-                  }
-  | ErrorMessage  { msgId        :: Hash
-                  , msgPid       :: Hash
-                  , msgCreator   :: Creator
-                  , msgCreatedAt :: Timestamp
-                  , msgExpiresAt :: Timestamp
-                  , msgSpec      :: Spec
-                  , msgEncoding  :: Encoding
-                  , msgError     :: ByteString
-                  }
-  | DataMessage   { msgId        :: Hash
-                  , msgPid       :: Hash
-                  , msgCreator   :: Creator
-                  , msgCreatedAt :: Timestamp
-                  , msgExpiresAt :: Timestamp
-                  , msgSpec      :: Spec
-                  , msgEncoding  :: Encoding
-                  , msgData      :: ByteString
-                  }
-
+data Message = Message { msgId        :: Hash        -- ^ bin format family
+                       , msgPid       :: Hash        -- ^ bin format family
+                       , msgCreator   :: Creator     -- ^ str format family
+                       , msgCreatedAt :: Timestamp   -- ^ int format family
+                       , msgExpiresAt :: Timestamp   -- ^ int format family
+                       , msgSpec      :: Spec        -- ^ str format family
+                       , msgEncoding  :: Encoding    -- ^ str format family
+                       , msgType      :: MessageType -- ^ str format family
+                       , msgData      :: ByteString  -- ^ bin format family
+                       }
   deriving (Eq, Show, Read, Generic)
 
 -- | 'MessageType' describes valid message types in Monique.
 --
 data MessageType = Config | Result | Error | Data
+  deriving (Eq, Generic)
+
+instance Show MessageType where
+  show Config = "config"
+  show Result = "result"
+  show Error  = "error"
+  show Data   = "data"
+
+instance Read MessageType where
+  readsPrec _ "config" = [(Config, "")]
+  readsPrec _ "result" = [(Result, "")]
+  readsPrec _ "error"  = [(Error, "")]
+  readsPrec _ "data"   = [(Data, "")]

@@ -6,12 +6,12 @@ module System.MQ.Protocol.Class
   , Props (..)
   ) where
 
-import           Control.Monad.Except (throwError)
-import           System.MQ.Monad      (MQError (..), MQMonad)
-import           System.MQ.Protocol   (Encoding, MessageType, Spec)
-import           Text.Printf          (printf)
+import           Control.Monad.Except              (throwError)
+import           System.MQ.Monad                   (MQError (..), MQMonad)
+import           System.MQ.Protocol.Internal.Types (Encoding, MessageType, Spec)
+import           Text.Printf                       (printf)
 
-import qualified Data.ByteString      as BS (ByteString)
+import qualified Data.ByteString                   as BS (ByteString)
 
 
 

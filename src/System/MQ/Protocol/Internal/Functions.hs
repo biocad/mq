@@ -1,16 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module System.MQ.Protocol.Internal.Functions
   (
     emptyHash
   , notExpires
-  , isConfig
   , jsonEncoding
   , msgpackEncoding
-  , createConfigMessage
-  , createResultMessage
-  , createErrorMessage
-  , createDataMessage
+  , createMessage
   , getTimeMillis
   ) where
 
@@ -25,6 +24,7 @@ import           System.Clock                      (Clock (..), getTime,
 import           System.MQ.Protocol.Internal.Types (Creator, Encoding, Hash,
                                                     Message (..), Spec,
                                                     Timestamp)
+import System.MQ.Protocol.Class (MessageLike (..), Props (..))
 
 -- | Creates 'Hash' with empty content.
 --
@@ -46,61 +46,23 @@ jsonEncoding = "JSON"
 msgpackEncoding :: Encoding
 msgpackEncoding = "MessagePack"
 
-
-createConfigMessage :: MonadIO m => Hash
-                                 -> Creator
-                                 -> Timestamp
-                                 -> Spec
-                                 -> Encoding
-                                 -> ByteString
-                                 -> m Message
-createConfigMessage mPid mCreator mExpires mSpec mEncoding mConfig = do
-    (mId, mCreated) <- mkId mCreator mSpec
-    pure $ ConfigMessage mId mPid mCreator mCreated mExpires mSpec mEncoding mConfig
-
-createResultMessage :: MonadIO m => Hash
-                                 -> Creator
-                                 -> Timestamp
-                                 -> Spec
-                                 -> Encoding
-                                 -> ByteString
-                                 -> m Message
-createResultMessage mPid mCreator mExpires mSpec mEncoding mResult = do
-    (mId, mCreated) <- mkId mCreator mSpec
-    pure $ ResultMessage mId mPid mCreator mCreated mExpires mSpec mEncoding mResult
-
-createErrorMessage :: MonadIO m => Hash
-                                -> Creator
-                                -> Timestamp
-                                -> Spec
-                                -> Encoding
-                                -> ByteString
-                                -> m Message
-createErrorMessage mPid mCreator mExpires mSpec mEncoding mError = do
-    (mId, mCreated) <- mkId mCreator mSpec
-    pure $ ErrorMessage mId mPid mCreator mCreated mExpires mSpec mEncoding mError
-
-createDataMessage :: MonadIO m => Hash
-                               -> Creator
-                               -> Timestamp
-                               -> Spec
-                               -> Encoding
-                               -> ByteString
-                               -> m Message
-createDataMessage mPid mCreator mExpires mSpec mEncoding mData = do
-    (mId, mCreated) <- mkId mCreator mSpec
-    pure $ DataMessage mId mPid mCreator mCreated mExpires mSpec mEncoding mData
+-- | Creates new message.
+--
+createMessage :: forall m a. (MonadIO m, MessageLike a)
+              => Hash      -- ^ parent message id
+              -> Creator   -- ^ message creator id
+              -> Timestamp -- ^ message expiration time
+              -> a         -- ^ message data
+              -> m Message 
+createMessage mPid mCreator mExpires (pack -> mData) = do
+    let Props{..}   = props :: Props a
+    (mId, mCreated) <- mkId mCreator spec
+    pure $ Message mId mPid mCreator mCreated mExpires spec encoding mtype mData
 
 -- | Get current time in milliseconds.
 --
 getTimeMillis :: MonadIO m => m Timestamp
 getTimeMillis = (`div` 10^(6::Int)) <$> getTimeNano
-
--- | Checks that message is config type.
---
-isConfig :: Message -> Bool
-isConfig ConfigMessage{} = True
-isConfig _               = False
 
 --------------------------------------------------------------------------------
 -- INTERNAL

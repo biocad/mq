@@ -12,7 +12,7 @@ module System.MQ.Protocol.Internal.Tag
   ) where
 
 import           Data.ByteString                   (ByteString, intercalate,
-                                                    split)
+                                                    split, pack)
 import           Data.Char                         (ord)
 import           Data.String                       (IsString (..))
 import           Data.Word                         (Word8)
@@ -24,15 +24,15 @@ import           System.MQ.Protocol.Internal.Types (Hash, Message (..),
 -- See doc/PROTOCOL.md#Заголовок-сообщения for more information.
 --
 messageTag :: Message -> MessageTag
-messageTag = intercalate ":" . ([msgType, fromString . msgSpec, msgId, msgPid, fromString . msgCreator] <*>) . pure
+messageTag = intercalate ":" . ([fromString . show . msgType, fromString . msgSpec, msgId, msgPid, fromString . msgCreator] <*>) . pure
 
--- | Helper function which returns message type.
---
-msgType :: Message -> ByteString
-msgType ConfigMessage {} = "config"
-msgType ResultMessage {} = "result"
-msgType ErrorMessage {}  = "error"
-msgType DataMessage {}   = "data"
+-- -- | Helper function which returns message type.
+-- --
+-- msgType :: Message -> ByteString
+-- msgType ConfigMessage {} = "config"
+-- msgType ResultMessage {} = "result"
+-- msgType ErrorMessage {}  = "error"
+-- msgType DataMessage {}   = "data"
 
 -- | Filtration:
 -- Use System.MQ.Protocol.Internal.Condition
