@@ -1,11 +1,9 @@
 module Main where
 
-import           System.MQ.Monad     (runMQMonad)
-import           System.MQ.Scheduler (getLogicConfig, getNetConfig,
-                                      schedulerLogic)
+import           Control.Applicative (liftA2)
+import           Control.Monad       (join)
+import           System.MQ.Scheduler (loadLogicConfig, loadNetConfig,
+                                      runSchedulerLogic)
 
 main :: IO ()
-main = do
-    netConfig   <- getNetConfig
-    logicConfig <- getLogicConfig
-    runMQMonad $ schedulerLogic netConfig logicConfig
+main = join $ liftA2 runSchedulerLogic loadNetConfig loadLogicConfig

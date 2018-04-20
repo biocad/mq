@@ -1,10 +1,6 @@
 module Main where
 
-import           System.MQ.Monad     (runMQMonad)
-import           System.MQ.Scheduler (getNetConfig, getOutConfig, schedulerOut)
+import           System.MQ.Scheduler (loadNetConfig, runSchedulerOut)
 
 main :: IO ()
-main = do
-    netConfig <- getNetConfig
-    outConfig <- getOutConfig
-    runMQMonad $ schedulerOut netConfig outConfig
+main = loadNetConfig >>= runSchedulerOut

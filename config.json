@@ -5,14 +5,24 @@
   "deploy":{
       "monique":{
           "scheduler-in" : {
+              "host": "*",
+              "comport": 9000,
+              "techport": 9024
+          },
+          "scheduler-in-logic" : {
               "host": "localhost",
-              "port-outer": 9000,
-              "port-inner": 9010
+              "comport": 9010,
+              "techport": 9034
+          },
+          "scheduler-logic-out" : {
+              "host": "localhost",
+              "comport": 9011,
+              "techport": 9035
           },
           "scheduler-out" : {
-              "host": "localhost",
-              "port-outer": 9001,
-              "port-inner": 9011
+              "host": "*",
+              "comport": 9001,
+              "techport": 9025
           }
     }
   },
