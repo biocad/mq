@@ -1,55 +1,29 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 module System.MQ.Scheduler.Internal.Config
-   where
+  (
+    NetConfig (..)
+  , LogicConfig (..)
+  , SchedulerCfg (..)
+  , loadLogicConfig
+  , loadNetConfig
+  , comHostPort
+  , techHostPort
+  ) where
 
+import           Data.Aeson          (FromJSON (..))
 import           Data.Aeson.Picker   ((|--))
+import           GHC.Generics        (Generic)
 import           System.BCD.Config   (getConfigText)
-import           System.MQ.Transport (HostPort (..), Host, Port)
-import Data.Aeson (FromJSON (..))
-import GHC.Generics (Generic)
--- | Contains all network information for schedulers.
---
--- data NetConfig = NetConfig { schedulerInOuter  :: HostPort
---                            , schedulerInInner  :: HostPort
---                            , schedulerOutOuter :: HostPort
---                            , schedulerOutInner :: HostPort
---                            }
-
--- | Function to get net config for schedulers from config.json.
---
--- getNetConfig :: IO NetConfig
--- getNetConfig = do
---     config           <- getConfigText
---     let getIn field  = config |-- ["deploy", "monique", "scheduler-in", field]
---     let getOut field = config |-- ["deploy", "monique", "scheduler-out", field]
---     pure $ NetConfig (HostPort (getIn "host") (getIn "port-outer"))
---                      (HostPort (getIn "host") (getIn "port-inner"))
---                      (HostPort (getOut "host") (getOut "port-outer"))
---                      (HostPort (getOut "host") (getOut "port-inner"))
-
-
-
--- | Contains scheduler in configuration.
---
-data InConfig = InConfig {}
+import           System.MQ.Transport (Host, HostPort (..), Port)
 
 -- | Contains scheduler logic configuration.
 --
 newtype LogicConfig = LogicConfig { allowMessages :: [String] }
 
--- | Contains scheduler out configuration.
---
-data OutConfig = OutConfig {}
-
--- | Load scheduler in configuration from config.json.
---
-getInConfig :: IO InConfig
-getInConfig = pure InConfig
-
--- | Load scheduler logic configuration from config.json.
+-- | Loads scheduler logic configuration from config.json.
 --
 loadLogicConfig :: IO LogicConfig
 loadLogicConfig = do
@@ -57,12 +31,16 @@ loadLogicConfig = do
     let getField field = config |-- ["params", "scheduler-logic", field]
     pure $ LogicConfig (getField "allow-messages")
 
--- | Load scheduler out configuration from config.json.
+-- | Contains all information for schedulers connections.
 --
-getOutConfig :: IO OutConfig
-getOutConfig = pure OutConfig
+data NetConfig = NetConfig { schedulerIn       :: SchedulerCfg
+                           , schedulerInLogic  :: SchedulerCfg
+                           , schedulerLogicOut :: SchedulerCfg
+                           , schedulerOut      :: SchedulerCfg
+                           }
 
-
+-- | Loads 'NetConfig' from config.json.
+--
 loadNetConfig :: IO NetConfig
 loadNetConfig = do
     config <- getConfigText
@@ -72,12 +50,8 @@ loadNetConfig = do
                      (getField "scheduler-logic-out")
                      (getField "scheduler-out")
 
-data NetConfig = NetConfig { schedulerIn       :: SchedulerCfg
-                           , schedulerInLogic  :: SchedulerCfg
-                           , schedulerLogicOut :: SchedulerCfg
-                           , schedulerOut      :: SchedulerCfg
-                           }
-
+-- | Contains information about host, communication and technical ports.
+--
 data SchedulerCfg = SchedulerCfg { host     :: Host
                                  , comport  :: Port
                                  , techport :: Port
@@ -86,8 +60,12 @@ data SchedulerCfg = SchedulerCfg { host     :: Host
 
 instance FromJSON SchedulerCfg
 
+-- | Takes 'Host' and communication 'Port' from 'SchedulerCfg'.
+--
 comHostPort :: SchedulerCfg -> HostPort
 comHostPort SchedulerCfg {..} = HostPort host comport
 
+-- | Takes 'Host' and technical 'Port' from 'SchedulerCfg'.
+--
 techHostPort :: SchedulerCfg -> HostPort
 techHostPort SchedulerCfg {..} = HostPort host techport

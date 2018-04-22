@@ -5,45 +5,33 @@ module System.MQ.Scheduler.Internal.Out
     runSchedulerOut
   ) where
 
-import           Control.Monad                       (forever)
-import Control.Concurrent (forkIO)
-import           Control.Monad.Except                (catchError, liftIO)
+import           Control.Concurrent                  (forkIO)
 import           System.Log.Logger                   (infoM)
-import           System.MQ.Monad                     (MQMonad, errorHandler, runMQMonad)
-import           System.MQ.Scheduler.Internal.Config (NetConfig (..), OutConfig, SchedulerCfg, comHostPort, techHostPort)
+import           System.MQ.Monad                     (foreverSafe, runMQMonad)
+import           System.MQ.Scheduler.Internal.Config (NetConfig (..),
+                                                      SchedulerCfg, comHostPort,
+                                                      techHostPort)
 import           System.MQ.Transport                 (BindTo (..),
-                                                      HostPort (..), PubChannel,
-                                                      PullChannel, anyHost,
+                                                      HostPort (..), anyHost,
                                                       contextM)
 import           System.MQ.Transport.ByteString      (pub, pull)
 
+-- | SchedulerIn receives messages from the SchedulerLogic and translates them into the "world".
+--
 runSchedulerOut :: NetConfig -> IO ()
 runSchedulerOut NetConfig{..} = do
-    -- connect <- connections
-    liftIO . infoM name $ "start working..."
+    infoM name "start working..."
     _ <- forkIO $ processing techHostPort
     processing comHostPort
+
   where
-    -- connections :: MQMonad (PullChannel, PubChannel)
-    -- connections = do
-    --     context'  <- contextM
-    --     fromLogic <- bindTo fromLogicHP context'
-    --     toWorld   <- bindTo toWorldHP context'
-    --     return (fromLogic, toWorld)
-
-    -- fromLogicHP = HostPort anyHost (port schedulerOutInner)
-    -- toWorldHP   = HostPort anyHost (port schedulerOutOuter)
-
     name :: String
     name = "SchedulerOut"
 
-    -- processing :: (PullChannel, PubChannel) -> MQMonad ()
-    -- processing (fromLogic, toWorld) = pull fromLogic >>= pub toWorld
-
     processing :: (SchedulerCfg -> HostPort) -> IO ()
     processing hostPortSelector = runMQMonad $ do
-        context' <- contextM
+        context'        <- contextM
         let fromLogicHP = HostPort anyHost (port . hostPortSelector $ schedulerLogicOut)
-        fromLogic <- bindTo fromLogicHP context'
-        toWorld <- bindTo (hostPortSelector schedulerOut) context'
-        forever . (`catchError` errorHandler name) $ (pull fromLogic >>= pub toWorld)
+        fromLogic       <- bindTo fromLogicHP context'
+        toWorld         <- bindTo (hostPortSelector schedulerOut) context'
+        foreverSafe name (pull fromLogic >>= pub toWorld)

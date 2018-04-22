@@ -7,10 +7,11 @@ module System.MQ.Monad
   , MQError (..)
   , runMQMonad
   , errorHandler
+  , foreverSafe
   ) where
 
-import           Control.Monad.Except (ExceptT, MonadError, MonadIO, liftIO,
-                                       runExceptT)
+import           Control.Monad.Except (ExceptT, MonadError, MonadIO, catchError,
+                                       forever, liftIO, runExceptT)
 import           System.Log.Logger    (errorM)
 import           Text.Printf          (printf)
 
@@ -33,12 +34,18 @@ runMQMonad m = either renderError pure =<< runExceptT (unMQMonad m)
     renderError :: MQError -> IO a
     renderError ms = ms `seq` print ms >> error "Shit happens"
 
--- | `errorHandler` just log message with error @err@ for the component with name @name@
+-- | 'errorHandler' logs message with error @err@ for the component with name @name@
 --
 errorHandler :: (Show e) => String -> e -> MQMonad ()
 errorHandler name err = do
   liftIO . errorM name . show $! err
   pure ()
+
+-- | 'foreverSafe' forever runs given @MQMonad ()@.
+-- If exception happens it prints log and runs further.
+--
+foreverSafe :: String -> MQMonad () -> MQMonad ()
+foreverSafe name = forever . (`catchError` errorHandler name)
 
 -- | 'MQError' is class for Monique Errors.
 --
