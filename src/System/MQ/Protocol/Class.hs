@@ -24,7 +24,7 @@ data Props a = Props { spec     :: Spec        -- ^ message spec
                      }
 
 -- | 'MessageLike' connects meaningful information about message with it's properties.
--- "meaningful information" is 'ByteString' that is stored in one of the following message fields: config, result, error or data.
+-- "meaningful information" is 'ByteString' that is stored in message field @data@.
 -- But content of the 'ByteString' is not enough to describe specification, type and encoding of the message.
 -- So every message in haskell language should be instance of 'MessageLike'.
 --
@@ -35,15 +35,15 @@ class MessageLike a where
   -- | Returns 'Props' for message.
   props :: Props a
 
-  -- | Pack something to 'BS.ByteString'.
+  -- | Packs something to 'BS.ByteString'.
   pack :: a -> BS.ByteString
 
-  -- | Unpack something from 'BS.ByteString'.
+  -- | Unpacks something from 'BS.ByteString'.
   -- If 'unpack' failes then 'Nothing' will be returned.
   --
   unpack :: BS.ByteString -> Maybe a
 
-  -- | Unpack something from 'BS.ByteString' inside 'MQMonad'.
+  -- | Unpacks something from 'BS.ByteString' inside 'MQMonad'.
   -- If 'unpackM' failes then 'MQError' will be thrown.
   --
   unpackM :: BS.ByteString -> MQMonad a

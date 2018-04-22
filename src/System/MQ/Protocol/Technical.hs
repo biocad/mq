@@ -1,24 +1,23 @@
-{-# LANGUAGE DeriveAnyClass    #-}
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module System.MQ.Protocol.Technical
-  ( KillConfig (..)
-  , MonitoringConfig (..)
-  , MonitoringResult (..)
+  (
+    KillConfig (..)
+  , MonitoringData (..)
   ) where
 
-import           Data.Aeson                        (FromJSON (..), ToJSON (..),
-                                                    genericParseJSON,
-                                                    genericToJSON, object,
-                                                    withObject, (.:), (.=))
-import           Data.Aeson.Casing                 (aesonPrefix, snakeCase)
-import qualified Data.ByteString.Char8             as BSLC8 (pack, unpack)
-import           GHC.Generics                      (Generic)
-import           System.MQ.Protocol (Hash, Timestamp, MessageType (..), jsonEncoding)
-import System.MQ.Encoding.JSON as JSON (pack, unpack)
-import System.MQ.Protocol.Class
+import           Data.Aeson               (FromJSON (..), ToJSON (..),
+                                           genericParseJSON, genericToJSON,
+                                           object, withObject, (.:), (.=))
+import           Data.Aeson.Casing        (aesonPrefix, snakeCase)
+import qualified Data.ByteString.Char8    as BSLC8 (pack, unpack)
+import           GHC.Generics             (Generic)
+import           System.MQ.Encoding.JSON  as JSON (pack, unpack)
+import           System.MQ.Protocol       (Hash, MessageType (..), Timestamp,
+                                           jsonEncoding)
+import           System.MQ.Protocol.Class (MessageLike (..), Props (..))
 
 -- | Configuration for kill task
 --
@@ -36,40 +35,23 @@ instance MessageLike KillConfig where
   pack = JSON.pack
   unpack = JSON.unpack
 
-
-
--- | Configuration of monitoring task
---
-newtype MonitoringConfig = MonitoringConfig { syncTime :: Timestamp }
-  deriving (Eq, Show, Generic)
-
-instance ToJSON MonitoringConfig where
-  toJSON = genericToJSON $ aesonPrefix snakeCase
-
-instance FromJSON MonitoringConfig where
-  parseJSON = genericParseJSON $ aesonPrefix snakeCase
-
-instance MessageLike MonitoringConfig where
-  props = Props "monitoring" Config jsonEncoding
-  pack = JSON.pack
-  unpack = JSON.unpack
-
 -- | Format of data that is produced as result of monitoring task
 --
-data MonitoringResult = MonitoringResult { rSyncTime  :: Timestamp
-                                         , rName      :: String
-                                         , rHost      :: String
-                                         , rIsRunning :: Bool
-                                         , rMessage   :: String
-                                         } deriving (Eq, Show, Generic)
+data MonitoringData = MonitoringData { mSyncTime  :: Timestamp
+                                     , mName      :: String
+                                     , mHost      :: String
+                                     , mIsRunning :: Bool
+                                     , mMessage   :: String
+                                     }
+  deriving (Eq, Show, Generic)
 
-instance ToJSON MonitoringResult where
+instance ToJSON MonitoringData where
   toJSON = genericToJSON $ aesonPrefix snakeCase
 
-instance FromJSON MonitoringResult where
+instance FromJSON MonitoringData where
   parseJSON = genericParseJSON $ aesonPrefix snakeCase
 
-instance MessageLike MonitoringResult where
-  props = Props "monitoring" Result jsonEncoding
+instance MessageLike MonitoringData where
+  props = Props "monitoring" Data jsonEncoding
   pack = JSON.pack
   unpack = JSON.unpack

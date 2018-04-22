@@ -41,13 +41,13 @@ errorHandler name err = do
   liftIO . errorM name . show $! err
   pure ()
 
--- | 'foreverSafe' forever runs given @MQMonad ()@.
+-- | 'foreverSafe' runs given @MQMonad ()@ forever.
 -- If exception happens it prints log and runs further.
 --
 foreverSafe :: String -> MQMonad () -> MQMonad ()
 foreverSafe name = forever . (`catchError` errorHandler name)
 
--- | 'MQError' is class for Monique Errors.
+-- | 'MQError' is class for MoniQue Errors.
 --
 data MQError
   = MQProtocolError  { msg :: String }

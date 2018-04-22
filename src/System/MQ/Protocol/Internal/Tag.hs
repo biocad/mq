@@ -28,14 +28,6 @@ import           System.MQ.Protocol.Internal.Types (Hash, Message (..),
 messageTag :: Message -> MessageTag
 messageTag = intercalate ":" . ([fromString . show . msgType, fromString . msgSpec, msgId, msgPid, fromString . msgCreator] <*>) . pure
 
--- -- | Helper function which returns message type.
--- --
--- msgType :: Message -> ByteString
--- msgType ConfigMessage {} = "config"
--- msgType ResultMessage {} = "result"
--- msgType ErrorMessage {}  = "error"
--- msgType DataMessage {}   = "data"
-
 -- | Filtration:
 -- Use System.MQ.Protocol.Internal.Condition
 -- > "config:bar:baz:ss:er" `matches` (messageType :== Config :&& messageId :== "baz")

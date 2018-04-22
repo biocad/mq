@@ -14,18 +14,18 @@ import qualified Data.ByteString.Lazy as BSL (fromStrict, toStrict)
 import           System.MQ.Monad      (MQError (..), MQMonad)
 import           Text.Printf          (printf)
 
--- | Pack something from JSON to 'BS.ByteString'.
+-- | Packs something from JSON to 'BS.ByteString'.
 --
 pack :: ToJSON a => a -> BS.ByteString
 pack = BSL.toStrict . encode
 
--- | Unpack something from 'BS.ByteString' to JSON.
+-- | Unpacks something from 'BS.ByteString' to JSON.
 -- If 'unpack' failes then 'Nothing' will be returned.
 --
 unpack :: FromJSON a => BS.ByteString -> Maybe a
 unpack = decode . BSL.fromStrict
 
--- | Unpack something from 'BS.ByteString' to JSON inside 'MQMonad'.
+-- | Unpacks something from 'BS.ByteString' to JSON inside 'MQMonad'.
 -- If 'unpackM' failes then 'MQError' will be thrown.
 --
 unpackM :: FromJSON a => BS.ByteString -> MQMonad a
