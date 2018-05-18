@@ -6,6 +6,34 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.1.2.1] - 2018-05-17
+### Changed
+- `String` is not so fast as `Text`.
+
+## [0.1.2.0] - 2018-05-17
+### Changed
+- Key type in Message map changed from `ByteString` to `String`.
+
+## [0.1.2.0] - 2018-05-17
+### Changed
+- Key type in Message map changed from `ByteString` to `String`.
+
+## [0.1.1.0] - 2018-05-14
+### Changed
+- Working with tags
+
+## [0.1.0.4] - 2018-05-11
+### Changed
+- New error handling during execution of runMQMonad
+
+## [0.1.0.3] - 2018-04-28
+### Changed
+- New logic for validation of tags
+
+## [0.1.0.1] - 2018-04-26
+### Added
+- Initial version
+
 ## [0.1.0.0] - 2018-04-06
 ### Added
 - Initial version

@@ -21,11 +21,13 @@ import           System.MQ.Protocol.Class (MessageLike (..), Props (..))
 
 -- | Configuration for kill task
 --
-newtype KillConfig = KillConfig { killTaskId :: Hash }
+newtype KillConfig = KillConfig { killTaskId :: Hash
+                                }
   deriving (Eq, Show, Generic)
 
 instance ToJSON KillConfig where
-  toJSON p = object [ "task_id" .= BSLC8.unpack (killTaskId p) ]
+  toJSON p = object [ "task_id" .= BSLC8.unpack (killTaskId p)
+                    ]
 
 instance FromJSON KillConfig where
   parseJSON = withObject "Kill Config" $ \o -> KillConfig . BSLC8.pack <$> o .: "task_id"
@@ -37,11 +39,10 @@ instance MessageLike KillConfig where
 
 -- | Format of data that is produced as result of monitoring task
 --
-data MonitoringData = MonitoringData { mSyncTime  :: Timestamp
-                                     , mName      :: String
-                                     , mHost      :: String
-                                     , mIsRunning :: Bool
-                                     , mMessage   :: String
+data MonitoringData = MonitoringData { mSyncTime :: Timestamp
+                                     , mName     :: String
+                                     , mIsAlive  :: Bool
+                                     , mMessage  :: String
                                      }
   deriving (Eq, Show, Generic)
 
