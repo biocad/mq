@@ -11,6 +11,7 @@ module System.MQ.Monad
 import           Control.Monad.Except           (ExceptT, MonadError, MonadIO,
                                                  catchError, forever, liftIO,
                                                  runExceptT)
+import           Control.Exception              (throw)
 import           System.Log.Logger              (errorM)
 import           System.MQ.Error.Internal.Types (MQError (..))
 import           Text.Printf                    (printf)
@@ -33,7 +34,7 @@ runMQMonad :: MQMonad a -> IO a
 runMQMonad m = either renderError pure =<< runExceptT (unMQMonad m)
   where
     renderError :: MQError -> IO a
-    renderError mqError = error . show $! mqError
+    renderError = throw
 
 -- | 'errorHandler' logs message with error @err@ for the component with name @name@
 --
