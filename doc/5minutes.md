@@ -9,6 +9,7 @@ mkdir mq
 cd mq
 wget https://raw.githubusercontent.com/biocad/mq/master/docker/docker-compose.yaml
 wget https://raw.githubusercontent.com/biocad/mq/master/docker/config-compose.json
+touch config-controller-compose.json
 ```
 
 2. Запустить "одно место" с помощью инструмента [Docker](https://www.docker.com/):
