@@ -12,7 +12,7 @@ module System.MQ.Monad
   , foreverSafe
   ) where
 
-import           Control.Exception              (throw, SomeException(..))
+import           Control.Exception              (throw, Exception(..), SomeException)
 import           Control.Monad.Except           (ExceptT, MonadError, MonadIO,
                                                  catchError, forever, liftIO,
                                                  runExceptT)
@@ -46,7 +46,7 @@ evalMQMonadS m = fmap fst . runMQMonadS m
 -- If exception happens error will be thrown.
 --
 runMQMonadS :: MQMonadS s a -> s -> IO (a, s)
-runMQMonadS m state = either (throw . SomeException) pure =<< runExceptT (runStateT (unMQMonadS m) state)
+runMQMonadS m state = either (throw . (toException::MQError -> SomeException)) pure =<< runExceptT (runStateT (unMQMonadS m) state)
 
 -- | Turns 'MQMonad' into 'IO' monad.
 -- If exception happens error will be thrown.

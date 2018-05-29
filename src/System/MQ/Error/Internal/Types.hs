@@ -28,19 +28,17 @@ data MQError = MQError { errorCode    :: Int
                        }
   deriving (Eq, Generic)
 
-fromMQErrorToException :: MQError -> SomeException
-fromMQErrorToException = toException
-
 instance Exception MQError where
   toException :: MQError -> SomeException
-  toException = fromMQErrorToException
+  toException = SomeException
 
   fromException :: SomeException -> Maybe MQError
   fromException (SomeException e) = res
     where
       msg = show e
-      (err,code) = splitAt 14 msg
-      res = if (err == "MQError (code ")
+      codeStartIdx = 14
+      (err, code) = splitAt codeStartIdx msg
+      res = if err == "MQError (code "
               then Just $ MQError (read (take 3 code) :: Int) msg
               else Nothing
 
